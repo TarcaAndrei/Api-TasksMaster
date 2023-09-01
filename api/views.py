@@ -1,3 +1,5 @@
+import datetime
+
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import PermissionDenied
 # Create your views here.
@@ -45,6 +47,7 @@ def test_token(request):
 
 
 from rest_framework import generics
+from django.utils.timezone import now
 from rest_framework.decorators import api_view
 
 from .models import Task, List
@@ -59,7 +62,8 @@ class TaskList(generics.ListCreateAPIView):
     # queryset = Task.objects.all()
     def get_queryset(self):
         queryset = Task.objects.all()
-        list = self.request.query_params.get('taskList')
+        list = self.request.query_params.get('taskList') #=>> trebuie pus ca parametru nu ca body ca pana acum !!
+        print(list)
         user_request = self.request.user
         if user_request is not None:
             queryset = queryset.filter(user=user_request)
@@ -67,17 +71,17 @@ class TaskList(generics.ListCreateAPIView):
             queryset = queryset.filter(taskList=list)
         return queryset
     def perform_create(self, serializer):
-        # Atribuie utilizatorul autentificat listei
         try:
             list_instance = serializer.validated_data['taskList']
         except :
             return Response({"detail": "Not found."}, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save(user=self.request.user)
+        serializer.save(user=self.request.user, taskLastUpdated=datetime.datetime.now())
         if list_instance.user != self.request.user:
             return Response({"detail": "Not found."}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         ##mi-o verifica acolo nu aici wtf
         #deci pun validatori de
+
     
 
 
@@ -101,10 +105,9 @@ class ListList(generics.ListCreateAPIView):
         queryset = List.objects.all()
         user_request = self.request.user
         if user_request is not None:
-            print("Ceva nu e none")
+            # print("Ceva nu e none")
             queryset = queryset.filter(user=user_request)
-        else:
-            print("Ceva")
+            # print("Ceva")
         return queryset
 
     def perform_create(self, serializer):

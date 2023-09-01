@@ -18,7 +18,6 @@ class ListSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         list_instance = data
-        print(data)
         user_request = self.context['request'].user
         if list_instance.user != user_request:
             raise serializers.ValidationError("Lista nu apartine")
@@ -28,7 +27,7 @@ class ListSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id', 'taskName', 'taskDetails', 'taskList']
+        fields = ['id', 'taskName', 'taskDetails', 'taskList', 'taskDue', 'taskPriority', 'taskDone']
         # fields += 'id'
 
     def __init__(self, *args, **kwargs):

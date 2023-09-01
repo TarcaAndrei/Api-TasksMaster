@@ -11,7 +11,12 @@ class List(models.Model):
 class Task(models.Model):
     taskName = models.CharField(max_length=100)
     taskDetails = models.CharField(max_length=300)
+    taskDue = models.DateTimeField()
+    taskLastUpdated = models.DateTimeField()
+    taskPriority = models.CharField(max_length=20)
+    taskDone = models.BooleanField()
     taskList = models.ForeignKey(List, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     def __str__(self):
         return self.taskName
+    #HOPE ITS working
