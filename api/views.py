@@ -18,6 +18,7 @@ def login(request):
         return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
     token, created = Token.objects.get_or_create(user=user)
     serializer = UserSerializer(instance=user)
+    # token = Token.objects.create(user=user)
     return Response({"token": token.key, "user": serializer.data})
 
 
@@ -27,6 +28,7 @@ def signup(request):
     if serializer.is_valid():
         serializer.save()
         user = User.objects.get(username=request.data['username'])
+        mail = User.objects.get(email=request.data['email'])
         user.set_password(request.data['password'])
         user.save()
         token = Token.objects.create(user=user)
@@ -47,14 +49,9 @@ def test_token(request):
 
 
 from rest_framework import generics
-from django.utils.timezone import now
-from rest_framework.decorators import api_view
 
 from .models import Task, List
 from .serializers import TaskSerializer, ListSerializer
-
-#
-# @api_view(['GET'])
 class TaskList(generics.ListCreateAPIView):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
@@ -78,7 +75,7 @@ class TaskList(generics.ListCreateAPIView):
         serializer.save(user=self.request.user, taskLastUpdated=datetime.datetime.now())
         if list_instance.user != self.request.user:
             return Response({"detail": "Not found."}, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
+        # serializer.save()
         ##mi-o verifica acolo nu aici wtf
         #deci pun validatori de
 
@@ -89,8 +86,9 @@ class TaskDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = TaskSerializer
+    queryset = Task.objects.all()
     def get_queryset(self):
-        queryset = List.objects.all()
+        queryset = Task.objects.all()
         user_request = self.request.user
         if user_request is not None:
             queryset = queryset.filter(user=user_request)
@@ -100,7 +98,7 @@ class ListList(generics.ListCreateAPIView):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = ListSerializer
-    queryset = List.objects.all().filter()
+    queryset = List.objects.all()
     def get_queryset(self):
         queryset = List.objects.all()
         user_request = self.request.user
