@@ -103,7 +103,7 @@ class ListList(generics.ListCreateAPIView):
         queryset = List.objects.all()
         user_request = self.request.user
         if user_request is not None:
-            # print("Ceva nu e none")
+            # print("Ceva nu e none")p
             queryset = queryset.filter(user=user_request)
             # print("Ceva")
         return queryset
@@ -111,6 +111,7 @@ class ListList(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         # Atribuie utilizatorul autentificat listei
         serializer.save(user=self.request.user)
+        # //aici sa pun data -> dar nuj cum s-o fac vizibila
 
 class ListDetail(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [SessionAuthentication, TokenAuthentication]
